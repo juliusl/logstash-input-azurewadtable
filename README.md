@@ -1,3 +1,8 @@
+## Notice
+This plugin is a part of [Microsoft Azure Diagnostics with ELK](https://github.com/mspnp/semantic-logging/tree/v3/ELK).
+
+[See more documentation.](https://github.com/mspnp/semantic-logging/blob/v3/ELK/md/LogstashExtensions.md#azure-wad-table)
+
 # Logstash Plugin
 
 This is a plugin for [Logstash](https://github.com/elasticsearch/logstash).
