@@ -19,6 +19,6 @@ Gem::Specification.new do |s|
 
   # Gem dependencies
   s.add_runtime_dependency 'logstash-core', '>= 1.4.0', '< 2.0.0'
-  s.add_runtime_dependency 'azure', '>= 0.6.4', '< 0.7.0'
-  s.add_development_dependency 'logstash-devutils'
+  s.add_runtime_dependency 'azure', '~> 0.6.4'
+  s.add_development_dependency 'logstash-devutils', '~> 0.0.14'
 end
