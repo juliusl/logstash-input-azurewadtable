@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = "This gem is a logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/plugin install gemname. This gem is not a stand-alone program"
   s.authors = ["Microsoft Corporation"]
   s.email = 'juliusl@microsoft.com'
-  s.homepage = "https://github.com/juliusl/logstash-input-azurewadtable/0.9.2"
+  s.homepage = "https://github.com/juliusl/logstash-input-azurewadtable/"
   s.require_paths = ["lib"]
 
   # Files
