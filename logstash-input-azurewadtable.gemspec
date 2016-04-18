@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'logstash-input-azurewadtable'
-  s.version         = '0.9.1'
+  s.version         = '0.9.2'
   s.licenses = ['Apache License (2.0)']
   s.summary = "This plugin will collect Microsoft Azure Diagnostics data from Azure Storage."
   s.description = "This gem is a logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/plugin install gemname. This gem is not a stand-alone program"
