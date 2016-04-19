@@ -14,7 +14,7 @@ class LogStash::Inputs::AzureWADTable < LogStash::Inputs::Base
   config :access_key, :validate => :string
   config :table_name, :validate => :string
   config :entity_count_to_process, :validate => :string, :default => 100
-  config :collection_start_time_utc, :validate => :string, :default => Time.now.utc.inspect
+  config :collection_start_time_utc, :validate => :string, :default => Time.now.utc.iso8601
   config :etw_pretty_print, :validate => :boolean, :default => false
   config :idle_delay_seconds, :validate => :number, :default => 15
 
@@ -30,9 +30,10 @@ class LogStash::Inputs::AzureWADTable < LogStash::Inputs::Base
       config.storage_account_name = @account_name
       config.storage_access_key = @access_key
      end
-    @azure_table_service = Azure::TableService.new
+    @azure_table_service = Azure::Table::TableService.new
     @last_timestamp = @collection_start_time_utc
-	@idle_delay = @idle_delay_seconds
+    @idle_delay = @idle_delay_seconds
+    @continuation_token = nil
   end # register
   
   public
@@ -52,9 +53,15 @@ class LogStash::Inputs::AzureWADTable < LogStash::Inputs::Base
   def process(output_queue)
     @logger.debug(@last_timestamp)
     # query data using start_from_time
-    query_filter = "PartitionKey gt '#{partitionkey_from_datetime(@last_timestamp)}' and PreciseTimeStamp gt datetime'#{@last_timestamp}'".gsub('"','')
-    query = { :top => @entity_count_to_process, :filter => query_filter }
+    query_filter = "(PartitionKey gt '#{partitionkey_from_datetime(@last_timestamp)}')"
+    for i in 0..99
+      query_filter << " or (PartitionKey gt '#{i.to_s.rjust(19, '0')}___#{partitionkey_from_datetime(@last_timestamp)}' and PartitionKey lt '#{i.to_s.rjust(19, '0')}___9999999999999999999')"
+    end # for block
+    query_filter = query_filter.gsub('"','')
+    @logger.debug("Query filter: " + query_filter)
+    query = { :top => @entity_count_to_process, :filter => query_filter, :continuation_token => @continuation_token }
     result = @azure_table_service.query_entities(@table_name, query)
+    @continuation_token = result.continuation_token
     
     if result and result.length > 0
       result.each do |entity|
@@ -88,7 +95,7 @@ class LogStash::Inputs::AzureWADTable < LogStash::Inputs::Base
         output_queue << event
       end # each block
       @idle_delay = 0
-      @last_timestamp = result.last.properties["PreciseTimeStamp"].inspect
+      @last_timestamp = result.last.properties["TIMESTAMP"].iso8601 unless @continuation_token
     else
       @logger.debug("No new results found.")
 	  @idle_delay = @idle_delay_seconds
@@ -123,3 +130,4 @@ class LogStash::Inputs::AzureWADTable < LogStash::Inputs::Base
   end # to_ticks
 
 end # LogStash::Inputs::AzureWADTable
+
